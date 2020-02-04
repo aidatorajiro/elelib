@@ -2,6 +2,10 @@
 
 fun library for electrum. have fun!
 
+## Library used
+
+segwiit_addr.py - Copyright (c) 2017 Pieter Wuille
+
 ## how to use
 
 In electrum console:
