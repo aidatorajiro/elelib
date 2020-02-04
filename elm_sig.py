@@ -6,7 +6,7 @@ def sign_tx_hash(hash, privkey, hashtype):
     return (key.get_public_key_bytes(), key.sign_transaction(hash) + hashtype.to_bytes(1, 'little'))
 
 def elm_sig(text, dest_addr, init_amount = 10000, coeff = 5):
-    pref = 'tb'
+    pref = dest_addr[:2]
     
     tmp_addr = createnewaddress()
     

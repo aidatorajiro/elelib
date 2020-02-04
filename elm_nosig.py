@@ -1,7 +1,7 @@
 elm_nosig_eval = """
 
 def elm_nosig(text, dest_addr, init_amount = 10000, coeff = 3):
-    pref = 'tb'
+    pref = dest_addr[:2]
     
     script = b"\x4c" + el.putIntLE(b'', 1, len(text.encode())) + text.encode() + b"\x75\x51"
     
