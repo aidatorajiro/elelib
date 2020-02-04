@@ -1,5 +1,4 @@
-import sys
-sys.path.append("/Users/aidatorajiro/Documents/elelib")
+elm_nosig = """
 
 import segwit_addr
 import el
@@ -45,3 +44,5 @@ def elm_sig(text, dest_addr, init_amount = 10000, coeff = 5):
     tx2 = el.putTransaction(b'', tx2_parse_signed).hex()
     
     broadcast(tx2)
+
+"""
