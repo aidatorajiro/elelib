@@ -1,7 +1,4 @@
-elm_nosig = """
-
-import segwit_addr
-import el
+elm_sig_eval = """
 
 # Sign transaction digest. return tuple(pubkey, sig).
 def sign_tx_hash(hash, privkey, hashtype):

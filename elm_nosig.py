@@ -1,8 +1,5 @@
 elm_nosig_eval = """
 
-import segwit_addr
-import el
-
 def elm_nosig(text, dest_addr, init_amount = 10000, coeff = 3):
     pref = 'tb'
     
