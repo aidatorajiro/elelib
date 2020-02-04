@@ -1,11 +1,15 @@
+import sys
+sys.path.append("/Users/aidatorajiro/Documents/elelib")
+
 import segwit_addr
 import el
 
-def sign_tx_hash(hash, address, hashtype):
-    privkey = bitcoin.deserialize_privkey(getprivatekeys(address))[1]
-    return electrum.ecc.ECPrivkey(privkey).sign(bytes.fromhex(hash), electrum.ecc.der_sig_from_r_and_s, electrum.ecc.get_r_and_s_from_der_sig) + hashtype.to_bytes(1, 'little')
+# Sign transaction digest. return tuple(pubkey, sig).
+def sign_tx_hash(hash, privkey, hashtype):
+    key = electrum.ecc.ECPrivkey(privkey)
+    return (key.get_public_key_bytes(), key.sign_transaction(hash) + hashtype.to_bytes(1, 'little'))
 
-def elm_sig(text, dest_addr, init_amount = 10000, coeff = 3):
+def elm_sig(text, dest_addr, init_amount = 10000, coeff = 5):
     pref = 'tb'
     
     tmp_addr = createnewaddress()
@@ -28,8 +32,16 @@ def elm_sig(text, dest_addr, init_amount = 10000, coeff = 3):
     
     target_out_index = list.index(tx1_parse.txouts, target_out)
     
+    hashtype = el.SIGHASH_ALL
+    
     tx2_parse = el.TransactionSegwit(2, 0, 1, [el.Txin(bytes.fromhex(tx1_hash), target_out_index, b'', 4294967293)], [el.Txout(init_amount - coeff*len(script), b'\x00\x14' + dest_addr_bytes)], [[script]], 0)
     
-    tx2 = el.putTransaction(b'', tx2_parse).hex()
+    txdigest = el.witness_digest(tx2_parse, hashtype, 0, init_amount, b'\x00\x20' + el.sha256(script), script)
+    
+    txsign = sign_tx_hash(txdigest, bitcoin.deserialize_privkey(getprivatekeys(tmp_addr))[1], hashtype)
+    
+    tx2_parse_signed = el.TransactionSegwit(2, 0, 1, [el.Txin(bytes.fromhex(tx1_hash), target_out_index, b'', 4294967293)], [el.Txout(init_amount - coeff*len(script), b'\x00\x14' + dest_addr_bytes)], [[txsign[1], txsign[0], script]], 0)
+    
+    tx2 = el.putTransaction(b'', tx2_parse_signed).hex()
     
     broadcast(tx2)

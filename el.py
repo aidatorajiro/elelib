@@ -184,8 +184,6 @@ def putTransaction(st, transaction):
   st = putIntLE(st, 4, transaction.locktime)
   return st
 
-from enum import Enum
-
 SIGHASH_ALL = 1
 SIGHASH_NONE = 2
 SIGHASH_SINGLE = 3
@@ -233,7 +231,7 @@ def witness_digest(transaction, hashtype, txin_index, prevout_amount, prevout_sc
   elif len(prevout_script) == 34 and prevout_script.startswith(b'\x00\x20'):  # P2WSH
     if prevout_script[2:] != sha256(prevout_witness_script):
       raise Exception("assertion failed: prevout_script[2:] != sha256(prevout_witness_script)")
-    if b'\xab' in prevout_witness_script and last_codeseparator_pos != None and last_codeseparator_pos != -1:
+    if last_codeseparator_pos != None and last_codeseparator_pos >= 0:
       if prevout_witness_script[last_codeseparator_pos] != 0xab:
         raise Exception("assertion failed: prevout_witness_script[last_codeseparator_pos] != 0xab")
       scriptCodePre = prevout_witness_script[last_codeseparator_pos + 1:]
