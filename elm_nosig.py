@@ -2,7 +2,7 @@ import electrum
 import segwit_addr
 import el
 
-def elm_nosig(command_set, text, dest_addr, init_amount = 10000, coeff = 3):
+def elm_nosig(command_set, text, dest_addr, init_amount = 20000, coeff = 10):
     payto = command_set['payto']
     broadcast = command_set['broadcast']
     

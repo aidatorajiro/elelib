@@ -1,16 +1,18 @@
 import electrum
 import segwit_addr
 import el
+import electrum.bitcoin as bitcoin
 
 # Sign transaction digest. return tuple(pubkey, sig).
 def sign_tx_hash(hash, privkey, hashtype):
     key = electrum.ecc.ECPrivkey(privkey)
     return (key.get_public_key_bytes(), key.sign_transaction(hash) + hashtype.to_bytes(1, 'little'))
 
-def elm_sig(command_set, text, dest_addr, init_amount = 10000, coeff = 5):
+def elm_sig(command_set, text, dest_addr, init_amount = 20000, coeff = 10):
     payto = command_set['payto']
     broadcast = command_set['broadcast']
     createnewaddress = command_set['createnewaddress']
+    getprivatekeys = command_set['getprivatekeys']
 
     pref = dest_addr[:2]
     

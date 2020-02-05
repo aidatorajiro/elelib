@@ -17,7 +17,7 @@ from electrum.simple_config import SimpleConfig
 loop, stopping_fut, loop_thread = create_and_start_event_loop()
 
 # use ~/.electrum/testnet as datadir
-config = SimpleConfig({"testnet": True, "fee_per_kb": 1000, "dynamic_fees": False})
+config = SimpleConfig({"testnet": True, "fee_per_kb": 5000, "dynamic_fees": False})
 
 # set testnet magic bytes
 constants.set_testnet()
@@ -42,34 +42,30 @@ daemon.add_wallet(wallet)
 # set up commands
 commands = Commands(config=config, daemon=daemon, network=network)
 
-command_set = {}
+def payto(*args):
+    return {'hex': commands._run('payto', args, wallet_path=wallet_path)}
 
-def funcgen(key):
-    def func(*args, **kwargs):
-        return commands._run(key, args, wallet_path=wallet_path, **kwargs)
-    return func
+def broadcast(*args):
+    return commands._run('broadcast', args)
 
-for key in known_commands.keys():
-    command_set[key] = funcgen(key)
+def createnewaddress(*args):
+    return commands._run('createnewaddress', args, wallet_path=wallet_path)
+
+def getprivatekeys(*args):
+    return commands._run('getprivatekeys', args, wallet_path=wallet_path)
+
+command_set = {
+    'payto': payto,
+    'broadcast': broadcast,
+    'createnewaddress': createnewaddress,
+    'getprivatekeys': getprivatekeys
+}
 
 import elm_nosig
+import elm_sig
 
-print((command_set['createnewaddress'])())
-# print(commands._run('createnewaddress', [], wallet_path=wallet_path))
+print("elm_sig starting....")
 
-#@log_exceptions
-#async def f():
+elm_sig.elm_sig(command_set, "びっとこいん　めもようし　あどれす　ビットコインメモ用紙アドレス bitcoinメモ用紙アドレス", "tb.......", 20000, 10)
 
-#    print(commands.__dict__)
-
-    # print(await commands.getbalance(wallet_path=wallet_path))
-
-    # print(await commands.createnewaddress(wallet_path=wallet_path))
-
-    # print(await commands.getunusedaddress(wallet_path=wallet_path))
-
-    # tx = await commands.payto("????", 0.00000001, wallet_path=wallet_path)
-
-    # print(await commands.broadcast(tx))
-
-#asyncio.run_coroutine_threadsafe(f(), loop)
+print("elm_sig completed....")
