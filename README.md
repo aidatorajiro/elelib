@@ -15,17 +15,9 @@ import sys
 sys.path.append("/path/to/clone/directory")
 import segwit_addr
 import el
-from elm_nosig import *
-from elm_sig import *
+from elm_nosig import elm_nosig
+from elm_sig import elm_sig
 ```
-
-Then, you can:
-
-```python
-eval(elm_sig_eval)
-eval(elm_nosig_eval)
-```
-to get "elm\_sig" and "elm\_nosig" functions.
 
 ## API reference
 
