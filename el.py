@@ -184,6 +184,33 @@ def putTransaction(st, transaction):
   st = putIntLE(st, 4, transaction.locktime)
   return st
 
+def putPushdata(st, data):
+  l = len(data)
+  if l <= 75:
+    prefix = putIntLE(b'', 1, l)
+  elif l <= 0xff:
+    prefix = putIntLE(b'\x4c', 1, l)
+  elif l <= 0xffff:
+    prefix = putIntLE(b'\x4d', 2, l)
+  elif l <= 0xffffffff:
+    prefix = putIntLE(b'\x4e', 4, l)
+  return st + prefix + data
+
+def getPushdata(st):
+  (st, first_byte) = getIntLE(st, 1)
+  if first_byte == 0x4c:
+    (st, length) = getIntLE(st, 1)
+  elif first_byte == 0x4d:
+    (st, length) = getIntLE(st, 2)
+  elif first_byte == 0x4e:
+    (st, length) = getIntLE(st, 4)
+  elif first_byte <= 75:
+    (st, length) = (st, first_byte[0])
+  else:
+    raise ParseException("getPushdata : invalid first byte")
+  (st, data) = getStr(st, length)
+  return (st, data)
+
 SIGHASH_ALL = 1
 SIGHASH_NONE = 2
 SIGHASH_SINGLE = 3
