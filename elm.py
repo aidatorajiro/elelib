@@ -2,6 +2,7 @@ import electrum
 import segwit_addr
 import el
 import electrum.bitcoin as bitcoin
+import time
 
 # Sign transaction digest. return tuple(pubkey, sig).
 def sign_tx_hash(hash, privkey, hashtype):
@@ -20,7 +21,9 @@ def elm_nosig(command_set, text, dest_addr, coeff = 10, len_offset = 100, final_
     dest_script = segwit_addr.encode(pref, 0, el.sha256(script))
     
     tx1 = payto(dest_script, init_amount * 0.00000001)['hex']
-    
+
+    print("Transaction sending... " + tx1)
+    time.sleep(10)
     tx1_hash = broadcast(tx1)
     
     dest_addr_bytes = bytes(segwit_addr.decode(pref, dest_addr)[1])
@@ -37,7 +40,9 @@ def elm_nosig(command_set, text, dest_addr, coeff = 10, len_offset = 100, final_
       [[script]], 0)
     
     tx2 = el.putTransaction(b'', tx2_parse).hex()
-    
+
+    print("Transaction sending... " + tx2)
+    time.sleep(10)
     broadcast(tx2)
 
 def elm_sig(command_set, text, dest_addr, coeff = 10, len_offset = 100, final_amount = 1000):
@@ -58,7 +63,9 @@ def elm_sig(command_set, text, dest_addr, coeff = 10, len_offset = 100, final_am
     dest_script = segwit_addr.encode(pref, 0, el.sha256(script))
     
     tx1 = payto(dest_script, init_amount * 0.00000001)['hex']
-    
+
+    print("Transaction sending... " + tx1)
+    time.sleep(10)
     tx1_hash = broadcast(tx1)
     
     dest_addr_bytes = bytes(segwit_addr.decode(pref, dest_addr)[1])
@@ -80,14 +87,16 @@ def elm_sig(command_set, text, dest_addr, coeff = 10, len_offset = 100, final_am
     tx2_parse_signed = el.TransactionSegwit(2, 0, 1, [el.Txin(bytes.fromhex(tx1_hash), target_out_index, b'', 4294967293)], [el.Txout(final_amount, b'\x00\x14' + dest_addr_bytes)], [[txsign[1], txsign[0], script]], 0)
     
     tx2 = el.putTransaction(b'', tx2_parse_signed).hex()
-    
+
+    print("Transaction sending... " + tx2)
+    time.sleep(10)
     broadcast(tx2)
 
 import re
 
 def elm_getdata(tx):
     scr = tx.witness[0][-1]
-    match = re.match(b"^([\x01-\x4e].+?)\x75\x76\xA9\x14.{20}\x88\xAC$", scr)
+    match = re.match(b"^([\x01-\x4e].+)\x75\x76\xA9\x14.{20}\x88\xAC$", scr, flags=re.DOTALL)
     if match == None:
         raise el.ParseException("elm_getdata parse error")
     (_, data) = el.getPushdata(match[1])

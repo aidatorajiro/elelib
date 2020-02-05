@@ -205,7 +205,7 @@ def getPushdata(st):
   elif first_byte == 0x4e:
     (st, length) = getIntLE(st, 4)
   elif first_byte <= 75:
-    (st, length) = (st, first_byte[0])
+    (st, length) = (st, first_byte)
   else:
     raise ParseException("getPushdata : invalid first byte")
   (st, data) = getStr(st, length)
@@ -281,7 +281,7 @@ def witness_digest(transaction, hashtype, txin_index, prevout_amount, prevout_sc
     putIntLE(b'', 4, hashtype)
   ]
   
-  print(data_to_hash)
+  # print(data_to_hash)
   
   return sha256d(b''.join(data_to_hash))
 
