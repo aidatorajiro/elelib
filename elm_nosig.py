@@ -1,6 +1,11 @@
-elm_nosig_eval = """
+import electrum
+import segwit_addr
+import el
 
-def elm_nosig(text, dest_addr, init_amount = 10000, coeff = 3):
+def elm_nosig(command_set, text, dest_addr, init_amount = 10000, coeff = 3):
+    payto = command_set['payto']
+    broadcast = command_set['broadcast']
+    
     pref = dest_addr[:2]
     
     script = b"\x4c" + el.putIntLE(b'', 1, len(text.encode())) + text.encode() + b"\x75\x51"
@@ -27,5 +32,3 @@ def elm_nosig(text, dest_addr, init_amount = 10000, coeff = 3):
     tx2 = el.putTransaction(b'', tx2_parse).hex()
     
     broadcast(tx2)
-
-"""
