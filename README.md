@@ -33,14 +33,18 @@ Note that you need segwit wallet to call these functions.
 
 ### elm\_nosig
 
-- args: *text*, *dest\_addr*, *init\_amount*, *coeff*
+- args: *command_set*, *text*, *dest\_addr*, *init\_amount*, *coeff*
+
+Please set *command_set* to `globals()` in the console.
 
 1. Send *init\_amount* to an address with script "OP_PUSHDATA < *text* > OP_DROP OP_TRUE" (*script*). Via P2WSH.
 2. From the address, send (*init\_amount* - *coeff* \* len(*script*)) to *dest\_addr*.
 
 ### elm\_sig
 
-- args: *text*, *dest\_addr*, *init\_amount*, *coeff*
+- args: *command_set*, *text*, *dest\_addr*, *init\_amount*, *coeff*
+
+Please set *command_set* to `globals()` in the console.
 
 1. Create an address(*tmp\_addr*)
 2. Send *init\_amount* to an address with script "OP_PUSHDATA < *text* > OP_DROP OP_DUP OP_HASH160 < pubKeyHash of *tmp\_addr* > OP_EQUALVERIFY OP_CHECKSIG" (*script*). Via P2WSH.
