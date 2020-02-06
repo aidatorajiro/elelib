@@ -186,14 +186,16 @@ def putTransaction(st, transaction):
 
 def putPushdata(st, data):
   l = len(data)
-  if l <= 75:
+  if 1 <= l <= 75:
     prefix = putIntLE(b'', 1, l)
-  elif l <= 0xff:
+  elif 76 <= l <= 0xff:
     prefix = putIntLE(b'\x4c', 1, l)
-  elif l <= 0xffff:
+  elif 0x100 <= l <= 0xffff:
     prefix = putIntLE(b'\x4d', 2, l)
-  elif l <= 0xffffffff:
+  elif 0x10000 <= l <= 0xffffffff:
     prefix = putIntLE(b'\x4e', 4, l)
+  else:
+    raise ParseException("putPushdata : invalid data length")
   return st + prefix + data
 
 def getPushdata(st):
@@ -204,7 +206,7 @@ def getPushdata(st):
     (st, length) = getIntLE(st, 2)
   elif first_byte == 0x4e:
     (st, length) = getIntLE(st, 4)
-  elif first_byte <= 75:
+  elif 1 <= first_byte <= 75:
     (st, length) = (st, first_byte)
   else:
     raise ParseException("getPushdata : invalid first byte")

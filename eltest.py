@@ -1,34 +1,37 @@
 from el import *
 import el
 
-class ErrorData:
-  pass
-
-Error = ErrorData()
+def err(x):
+    try:
+      x()
+    except el.ParseException:
+      return True
+    return False
 
 test_vectors = [
 
     getStr(b"abcdefg", 2)    == (b'cdefg', b'ab'),
     getStr(b"ab", 2)         == (b'', b'ab'),
-    getStr(b"a", 2)          == Error,
+    err(lambda: getStr(b"a", 2)),
     getIntLE(b"abc", 2)      == (b'c', 25185),
     getConst(b"test", b"t")  == (b'est', b't'),
-    getConst(b"test", b"ta") == Error,
+    err(lambda: getConst(b"test", b"ta")),
     getVI(b"\xfd\x07\x00")   == (b'', 7),
     getVI(b"\x07")           == (b'', 7),
     
     getOr(b"test", c(getConst, b"ta"), c(getConst, b"te"))   == (b'st', b'te'),
     getThen(b"1231234", c(getIntLE, 3), c(getConst, b"1"))   == (b'234', b'1'),
-    getThen(b"1231234", c(getIntLE, 3), c(getConst, b"13"))  == Error,
+    err(lambda: getThen(b"1231234", c(getIntLE, 3), c(getConst, b"13"))),
     getLoop(b"aaaaa", c(getConst, b"a"), 4)                  == (b'a', [b'a', b'a', b'a', b'a']),
     
     
     putStr(b"aa", b"bbb")          == b'aabbb',
     putIntLE(b"11", 3, 5263698)    == b'11RQP',
-    putThen(b'abc', c(putConst, b'd')  == c(putConst, b'e'))  , b'abcde',
+    putThen(b'abc', c(putConst, b'd'), c(putConst, b'e')) == b'abcde',
     putMap(b'xyz', putVI, [7, 6, 5])   == b'xyz\x07\x06\x05',
     putVI(b'abc', 12345678)        == b'abc\xfeNa\xbc\x00',
 
+    # some tests from BIP-143
     el.witness_digest(el.getTransaction(bytes.fromhex('0100000002fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f0000000000eeffffffef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a0100000000ffffffff02202cb206000000001976a9148280b37df378db99f66f85c95a783a76ac7a6d5988ac9093510d000000001976a9143bde42dbee7e4dbe6a21b2d50ce2f0167faa815988ac11000000'))[1],1, 1, 600000000, bytes.fromhex("00141d0f172a0ecb48aee1be1f2687d2963ae33f71a1"))== b'\xc3z\xf3\x11\x16\xd1\xb2|\xafh\xaa\xe9\xe3\xac\x82\xf1Gy)\x01M[\x91vW\xd0\xebIG\x8c\xb6p',
 
     el.witness_digest(el.getTransaction(bytes.fromhex('0100000001db6b1b20aa0fd7b23880be2ecbd4a98130974cf4748fb66092ac4d3ceb1a54770100000000feffffff02b8b4eb0b000000001976a914a457b684d7f0d539a46a45bbc043f35b59d0d96388ac0008af2f000000001976a914fd270b1ee6abcaea97fea7ad0402e8bd8ad6d77c88ac92040000'))[1],1, 0, 1000000000, bytes.fromhex('001479091972186c449eb1ded22b78e40d009bdf0089')) == b'd\xf3\xb0\xf4\xdd+\xb3\xaa\x1c\xe8Vm"\x0c\xc7M\xda\x9d\xf9}\x84\x90\xcc\x81\xd8\x9ds\\\x92\xe5\x9f\xb6',
@@ -39,7 +42,13 @@ test_vectors = [
     
     el.witness_digest(el.getTransaction(bytes.fromhex('0100000002e9b542c5176808107ff1df906f46bb1f2583b16112b95ee5380665ba7fcfc0010000000000ffffffff80e68831516392fcd100d186b3c2c7b95c80b53c77e77c35ba03a66b429a2a1b0000000000ffffffff0280969800000000001976a914de4b231626ef508c9a74a8517e6783c0546d6b2888ac80969800000000001976a9146648a8cd4531e1ec47f35916de8e259237294d1e88ac00000000'))[1], 0x83, 1, 16777215, bytes.fromhex('0020d9bbfbe56af7c4b7f960a70d7ea107156913d9e5a26b0a71429df5e097ca6537'), bytes.fromhex('5163ab68210392972e2eb617b2388771abe27235fd5ac44af8e61693261550447a4c3e39da98ac'), 2) == bytes.fromhex("cd72f1f1a433ee9df816857fad88d8ebd97e09a75cd481583eb841c330275e54"),
     
-    
+    el.witness_digest(el.getTransaction(bytes.fromhex('010000000136641869ca081e70f394c6948e8af409e18b619df2ed74aa106c1ca29787b96e0100000000ffffffff0200e9a435000000001976a914389ffce9cd9ae88dcc0631e88a821ffdbe9bfe2688acc0832f05000000001976a9147480a33f950689af511e6e84c138dbbd3c3ee41588ac00000000'))[1], 1, 0, 987654321, bytes.fromhex('0020a16b5755f7f6f96dbd65f5f0d6ab9418b89af4b1f14a1bb8a09062c35f0dcb54'), bytes.fromhex('56210307b8ae49ac90a048e9b53357a2354b3334e9c8bee813ecb98e99a7e07e8c3ba32103b28f0c28bfab54554ae8c658ac5c3e0ce6e79ad336331f78c428dd43eea8449b21034b8113d703413d57761b8b9781957b8c0ac1dfe69f492580ca4195f50376ba4a21033400f6afecb833092a9a21cfdf1ed1376e58c5d1f47de74683123987e967a8f42103a6d48b1131e94ba04d9737d61acdaa1322008af9602b3b14862c07a1789aac162102d8b661b0b3302ee2f162b09e07a55ad5dfbe673a9f01d9f0c19617681024306b56ae'), -1) == bytes.fromhex('185c0be5263dce5b4bb50a047973c1b6272bfbd0103a89444597dc40b248ee7c'),
+
+    el.witness_digest(el.getTransaction(bytes.fromhex('010000000136641869ca081e70f394c6948e8af409e18b619df2ed74aa106c1ca29787b96e0100000000ffffffff0200e9a435000000001976a914389ffce9cd9ae88dcc0631e88a821ffdbe9bfe2688acc0832f05000000001976a9147480a33f950689af511e6e84c138dbbd3c3ee41588ac00000000'))[1], 2, 0, 987654321, bytes.fromhex('0020a16b5755f7f6f96dbd65f5f0d6ab9418b89af4b1f14a1bb8a09062c35f0dcb54'), bytes.fromhex('56210307b8ae49ac90a048e9b53357a2354b3334e9c8bee813ecb98e99a7e07e8c3ba32103b28f0c28bfab54554ae8c658ac5c3e0ce6e79ad336331f78c428dd43eea8449b21034b8113d703413d57761b8b9781957b8c0ac1dfe69f492580ca4195f50376ba4a21033400f6afecb833092a9a21cfdf1ed1376e58c5d1f47de74683123987e967a8f42103a6d48b1131e94ba04d9737d61acdaa1322008af9602b3b14862c07a1789aac162102d8b661b0b3302ee2f162b09e07a55ad5dfbe673a9f01d9f0c19617681024306b56ae'), -1) == bytes.fromhex('e9733bc60ea13c95c6527066bb975a2ff29a925e80aa14c213f686cbae5d2f36'),
+
+    el.witness_digest(el.getTransaction(bytes.fromhex('010000000136641869ca081e70f394c6948e8af409e18b619df2ed74aa106c1ca29787b96e0100000000ffffffff0200e9a435000000001976a914389ffce9cd9ae88dcc0631e88a821ffdbe9bfe2688acc0832f05000000001976a9147480a33f950689af511e6e84c138dbbd3c3ee41588ac00000000'))[1], 3, 0, 987654321, bytes.fromhex('0020a16b5755f7f6f96dbd65f5f0d6ab9418b89af4b1f14a1bb8a09062c35f0dcb54'), bytes.fromhex('56210307b8ae49ac90a048e9b53357a2354b3334e9c8bee813ecb98e99a7e07e8c3ba32103b28f0c28bfab54554ae8c658ac5c3e0ce6e79ad336331f78c428dd43eea8449b21034b8113d703413d57761b8b9781957b8c0ac1dfe69f492580ca4195f50376ba4a21033400f6afecb833092a9a21cfdf1ed1376e58c5d1f47de74683123987e967a8f42103a6d48b1131e94ba04d9737d61acdaa1322008af9602b3b14862c07a1789aac162102d8b661b0b3302ee2f162b09e07a55ad5dfbe673a9f01d9f0c19617681024306b56ae'), -1) == bytes.fromhex('1e1f1c303dc025bd664acb72e583e933fae4cff9148bf78c157d1e8f78530aea'),
+
+    el.witness_digest(el.getTransaction(bytes.fromhex('010000000169c12106097dc2e0526493ef67f21269fe888ef05c7a3a5dacab38e1ac8387f14c1d000000ffffffff0101000000000000000000000000'))[1], 1, 0, 200000, bytes.fromhex('00209e1be07558ea5cc8e02ed1d80c0911048afad949affa36d5c3951e3159dbea19'), bytes.fromhex('ad4830450220487fb382c4974de3f7d834c1b617fe15860828c7f96454490edd6d891556dcc9022100baf95feb48f845d5bfc9882eb6aeefa1bc3790e39f59eaa46ff7f15ae626c53e01'), -1) == bytes.fromhex('71c9cd9b2869b9c70b01b1f0360c148f42dee72297db312638df136f43311f23'),
 ]
 
 
