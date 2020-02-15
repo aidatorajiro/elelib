@@ -1,6 +1,11 @@
 # Standalone version simple electrum client.
 # compatible: Electrum==3.3.8. please download it from official releases.
 
+# Please set log address and texts you want to upload
+log_address = "tb........"
+
+text_to_upload = {"aaaaa", "bbbbb", "ccccc"}
+
 import os
 import sys
 import asyncio
@@ -46,7 +51,7 @@ def create_func(key):
         return commands._run(key, args, lambda: "")
     return f
 
-command_set = {"test test test", "abcde"}
+command_set = {}
 
 for k in known_commands.keys():
     command_set[k] = create_func(k)
@@ -57,11 +62,6 @@ import el
 getaddresshistory = command_set['getaddresshistory']
 gettransaction = command_set['gettransaction']
 getbalance = command_set['getbalance']
-
-log_address = sys.argv[1]
-
-text_to_upload = {
-}
 
 import random
 
