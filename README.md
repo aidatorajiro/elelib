@@ -43,6 +43,6 @@ Please set *command_set* to `globals()` in the console.
 
 ## Standalone version
 
-If you install Electrum 3.3.8 via pip, you can use Electrum as a python library.
-For more details, see <https://github.com/spesmilo/electrum/tree/e81f4bdcd11a072e7c4f38fb1c7eec19c2f7e1a8>.
+If you install Electrum 3.3.8 via pip, you can use Electrum as a python library.  
+For more details, see <https://github.com/spesmilo/electrum/tree/e81f4bdcd11a072e7c4f38fb1c7eec19c2f7e1a8>.  
 See standalone.py for sample script.
