@@ -2,9 +2,9 @@
 # compatible: Electrum==3.3.8. please download it from official releases.
 
 # Please set log address and texts you want to upload
-log_address = "tb........"
+log_address = "tb1qq3z0xsn7wtqmthxka6g5qqr2p78a8nkta4dz8t"
 
-text_to_upload = {"aaaaa", "bbbbb", "ccccc"}
+text_to_upload = set(open("texts.txt").read().split('\n'))
 
 import os
 import sys
@@ -70,14 +70,13 @@ def wait_until_confirmed():
         print("wait until confirm: " + str(getbalance()))
         time.sleep(10)
 
-while True:
-    time.sleep(10)
-    wait_until_confirmed()
+# wait_until_confirmed()
+
+for text in text_to_upload:
     time.sleep(10)
     print(getbalance())
     
     data_uploaded = set()
-    text_not_uploaded = set()
     
     history = getaddresshistory(log_address)
     for h in history:
@@ -90,17 +89,16 @@ while True:
         except Exception as e:
             print("Parse Error: " + str(e))
     
-    for text in text_to_upload:
-        if not text.encode() in data_uploaded:
-            text_not_uploaded.add(text)
-    
-    if not text_not_uploaded:
-        break
+    if text.encode() in data_uploaded:
+        continue
 
-    print(text_not_uploaded)
+    print(text)
+
+    current_target = text
     
-    current_target = random.choice(list(text_not_uploaded))
-    
-    elm.elm_sig(command_set, current_target, log_address)
+    try:
+        elm.elm_sig(command_set, current_target, log_address)
+    except Exception as e:
+        print(e)
 
 print("finished!")

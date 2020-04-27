@@ -35,7 +35,7 @@ def elm_nosig(command_set, text, dest_addr, coeff = 10, len_offset = 100, final_
     target_out_index = list.index(tx1_parse.txouts, target_out)
     
     tx2_parse = el.TransactionSegwit(2, 0, 1,
-      [el.Txin(bytes.fromhex(tx1_hash), target_out_index, b'', 4294967293)],
+      [el.Txin(bytes.fromhex(tx1_hash), target_out_index, b'', 0xFFFFFFFF)],
       [el.Txout(final_amount, b'\x00\x14' + dest_addr_bytes)],
       [[script]], 0)
     
@@ -77,14 +77,17 @@ def elm_sig(command_set, text, dest_addr, coeff = 10, len_offset = 100, final_am
     target_out_index = list.index(tx1_parse.txouts, target_out)
     
     hashtype = el.SIGHASH_ALL
+
+    tx2_in = [el.Txin(bytes.fromhex(tx1_hash), target_out_index, b'', 0xFFFFFFFF)]
+    tx2_out = [el.Txout(final_amount, b'\x00\x14' + dest_addr_bytes)]
     
-    tx2_parse = el.TransactionSegwit(2, 0, 1, [el.Txin(bytes.fromhex(tx1_hash), target_out_index, b'', 4294967293)], [el.Txout(final_amount, b'\x00\x14' + dest_addr_bytes)], [[script]], 0)
+    tx2_parse = el.TransactionSegwit(2, 0, 1, tx2_in, tx2_out, [[script]], 0)
     
     txdigest = el.witness_digest(tx2_parse, hashtype, 0, init_amount, b'\x00\x20' + el.sha256(script), script)
     
     txsign = sign_tx_hash(txdigest, bitcoin.deserialize_privkey(getprivatekeys(tmp_addr))[1], hashtype)
     
-    tx2_parse_signed = el.TransactionSegwit(2, 0, 1, [el.Txin(bytes.fromhex(tx1_hash), target_out_index, b'', 4294967293)], [el.Txout(final_amount, b'\x00\x14' + dest_addr_bytes)], [[txsign[1], txsign[0], script]], 0)
+    tx2_parse_signed = el.TransactionSegwit(2, 0, 1, tx2_in, tx2_out, [[txsign[1], txsign[0], script]], 0)
     
     tx2 = el.putTransaction(b'', tx2_parse_signed).hex()
 
