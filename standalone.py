@@ -2,7 +2,7 @@
 # compatible: Electrum==3.3.8. please download it from official releases.
 
 # Please set log address and texts you want to upload
-log_address = "tb1qq3z0xsn7wtqmthxka6g5qqr2p78a8nkta4dz8t"
+log_address = "tb1..."
 
 text_to_upload = set(open("texts.txt").read().split('\n'))
 
